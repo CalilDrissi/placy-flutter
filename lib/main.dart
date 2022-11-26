@@ -2,6 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import './utils/dbhelper.dart';
+import './models/place.dart';
+import 'place_dialog.dart';
 
 void main() {
   runApp(MyApp());
@@ -30,18 +33,25 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  List<Marker> markers = [];
+  DbHelper helper;
+  List<Marker> _markers = [];
+
 
   @override
   void initState() {
-    _getCurrentLocation().then((pos) {
-      addMarker(pos, 'currpos', 'You are here!');
-    }).catchError((err) => print(err.toString()));
+    _getCurrentLocation().then((pos){
+      _addMarker(pos, 'currpos', 'You are here!');
+    }).catchError(
+            (err)=> print(err.toString()));
+    helper = DbHelper();
+    // helper.insertMockData();
+    _getData();
+
     super.initState();
   }
 
-  final CameraPosition position =
-      CameraPosition(target: LatLng(41.9028, 12.4964), zoom: 12);
+
+  final CameraPosition position = CameraPosition(target: LatLng(41.9028, 12.4964), zoom: 12);
 
   @override
   Widget build(BuildContext context) {
@@ -51,13 +61,43 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         body: Container(
           child: GoogleMap(
-            markers: Set<Marker>.of(markers),
+            markers: Set<Marker>.of(_markers),
             initialCameraPosition: position,
           ),
-        ) // This trailing comma makes auto-formatting nicer for build methods.
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        floatingActionButton: FloatingActionButton(
+          child: Icon(Icons.add_location),
+          onPressed: () {
+
+            int here = _markers.indexWhere((p)=> p.markerId ==
+                MarkerId('currpos'));
+            Place place;
+            if (here == -1) {
+              //the current position is not available
+              place = Place(0, '', 0, 0, '');
+            }
+            else {
+              LatLng pos = _markers[here].position;
+              place = Place(0, '', pos.latitude, pos.longitude, '');
+            }
+
+            PlaceDialog dialog = PlaceDialog(place, true);
+            showDialog(
+                context: context,
+                builder: (context) => dialog.BuildAlert(context));
+          },
+
+
+
+
+        ),// This trailing comma makes auto-formatting nicer for build methods.
         );
   }
 
+
+
+  /////################# FUNCTIONALITY##################################
   Future _getCurrentLocation() async {
     bool isGeolocationAvailable = await Geolocator.isLocationServiceEnabled();
 
@@ -76,7 +116,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return _position;
   }
 
-  void addMarker(Position pos, String markerId, String markerTitle) {
+  void _addMarker(Position pos, String markerId, String markerTitle) {
     final marker = Marker(
         markerId: MarkerId(markerId),
         position: LatLng(pos.latitude, pos.longitude),
@@ -86,9 +126,24 @@ class _MyHomePageState extends State<MyHomePage> {
             : BitmapDescriptor.defaultMarkerWithHue(
                 BitmapDescriptor.hueOrange));
 
-    markers.add(marker);
+    _markers.add(marker);
     setState(() {
-      markers = markers;
+      _markers = _markers;
     });
   }
+
+
+  Future _getData() async {
+    await helper.openDb();
+    // await helper.testDb();
+    List <Place> _places =  await helper.getPlaces();
+    for (Place p in _places) {
+       _addMarker(Position(latitude: p.lat, longitude: p.lon), p.id.toString(),  p.name) ;
+    }
+    setState(() {
+      _markers = _markers;
+    });
+  }
+
+
 }

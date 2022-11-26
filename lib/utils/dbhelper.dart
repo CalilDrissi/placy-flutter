@@ -6,14 +6,23 @@ import 'package:sqflite/sqflite.dart';
 
 class DbHelper {
   final int version = 1;
+
   Database db;
+
+
   List<Place> places = List<Place>();
+
   static final DbHelper _dbHelper = DbHelper._internal();
+
   DbHelper._internal();
+
 
   factory DbHelper() {
     return _dbHelper;
   }
+
+
+  // creates || Opens db
 
   Future<Database> openDb() async {
     if (db == null) {
@@ -26,6 +35,7 @@ class DbHelper {
     return db;
   }
 
+  // insert initial data in to the db
   Future insertMockData() async {
     db = await openDb();
     await db.execute('INSERT INTO places VALUES (4, "Beautiful park", 41.9294115, 12.5380785, "")');
@@ -35,7 +45,26 @@ class DbHelper {
     print(places[0].toString());
   }
 
-  Future<List<Place>> getPlaces() async {
+
+
+
+
+
+// create
+  Future<int> insertPlace(Place place) async {
+    // Get a reference to the database.
+
+    int id = await this.db.insert(
+      'places',
+      place.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+    return id;
+  }
+
+
+// read
+Future<List<Place>> getPlaces() async {
     final List<Map<String, dynamic>> maps = await db.query('places');
     // Convert the List<Map<String, dynamic> into a List<Places>.
     this.places = List.generate(maps.length, (i) {
@@ -50,16 +79,8 @@ class DbHelper {
     return places;
   }
 
-  Future<int> insertPlace(Place place) async {
-    // Get a reference to the database.
 
-    int id = await this.db.insert(
-      'places',
-      place.toMap(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
-    return id;
-  }
+  // update
   Future<int> updatePlace(Place place) async {
     // Get a reference to the database.
 
@@ -70,6 +91,8 @@ class DbHelper {
     return id;
   }
 
+
+  // delete
   Future<int> deletePlace(Place place) async {
     int result = await db.delete("places", where: "id = ?", whereArgs: [place.id]);
     return result;
