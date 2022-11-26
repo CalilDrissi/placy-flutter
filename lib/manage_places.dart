@@ -4,9 +4,6 @@ import './utils/dbhelper.dart';
 
 
 
-
-
-
 class ManagePlaces extends StatelessWidget {
 
   @override
@@ -26,8 +23,34 @@ class PlacesList extends StatefulWidget {
 }
 
 class _PlacesListState extends State<PlacesList> {
+  DbHelper helper = DbHelper();
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return ListView.builder(
+        itemCount:  helper.places.length,
+        itemBuilder: (BuildContext context, int index) {
+          return Dismissible(
+            child: ListTile(
+              title: Text(helper.places[index].name),
+              trailing: IconButton(
+                icon: Icon(Icons.edit),
+                onPressed: () {
+                  PlaceDialog dialog = PlaceDialog(helper.places[index], false);
+                  showDialog(context: context, builder: (context) => dialog.BuildAlert(context));
+                },
+              ),
+            ),
+            key: Key(helper.places[index].name),
+              onDismissed:(direction) {
+                String strName = helper.places[index].name;
+                helper.deletePlace(helper.places[index]);
+                setState(() {
+                  helper.places.removeAt(index);
+                });
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("$strName deleted")));
+                },
+          );
+        }
+    );
   }
 }

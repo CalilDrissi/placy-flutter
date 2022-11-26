@@ -5,6 +5,7 @@ import 'package:geolocator/geolocator.dart';
 import './utils/dbhelper.dart';
 import './models/place.dart';
 import 'place_dialog.dart';
+import 'manage_places.dart';
 
 void main() {
   runApp(MyApp());
@@ -41,8 +42,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     _getCurrentLocation().then((pos){
       _addMarker(pos, 'currpos', 'You are here!');
-    }).catchError(
-            (err)=> print(err.toString()));
+    }).catchError( (err)=> print(err.toString()));
     helper = DbHelper();
     // helper.insertMockData();
     _getData();
@@ -58,6 +58,12 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
         appBar: AppBar(
           title: Text(widget.title),
+          actions: [
+            IconButton(onPressed: (){
+              MaterialPageRoute route = MaterialPageRoute(builder: (context)=> ManagePlaces());
+              Navigator.push(context, route);
+            }, icon: Icon(Icons.list),)
+          ],
         ),
         body: Container(
           child: GoogleMap(
@@ -70,8 +76,7 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Icon(Icons.add_location),
           onPressed: () {
 
-            int here = _markers.indexWhere((p)=> p.markerId ==
-                MarkerId('currpos'));
+            int here = _markers.indexWhere((p)=> p.markerId == MarkerId('currpos'));
             Place place;
             if (here == -1) {
               //the current position is not available
@@ -83,9 +88,8 @@ class _MyHomePageState extends State<MyHomePage> {
             }
 
             PlaceDialog dialog = PlaceDialog(place, true);
-            showDialog(
-                context: context,
-                builder: (context) => dialog.BuildAlert(context));
+            showDialog(context: context, builder: (context) => dialog.BuildAlert(context));
+
           },
 
 
