@@ -20,14 +20,12 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.green,
       ),
-      home: const MyHomePage('Home'),
+      home:  MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage(this.title);
-  final String title;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -57,7 +55,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text(widget.title),
+          title: Text('Places'),
           actions: [
             IconButton(onPressed: (){
               MaterialPageRoute route = MaterialPageRoute(builder: (context)=> ManagePlaces());

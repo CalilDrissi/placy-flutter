@@ -3,12 +3,14 @@ import 'package:camera/camera.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import '../models/place.dart';
+import 'picture_screen.dart';
+
 
 
 
 class CameraScreen extends StatefulWidget {
   final Place place;
-  CameraScreen(this.place);
+   CameraScreen(this.place);
   _CameraScreenState createState() => _CameraScreenState(this.place);
 }
 
@@ -16,6 +18,7 @@ class CameraScreen extends StatefulWidget {
 
 
 class _CameraScreenState extends State<CameraScreen> {
+
   final Place place;
   CameraController _controller;
   List<CameraDescription> cameras;
@@ -50,6 +53,11 @@ class _CameraScreenState extends State<CameraScreen> {
     super.initState();
   }
 
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
 
 
@@ -62,14 +70,18 @@ class _CameraScreenState extends State<CameraScreen> {
             IconButton(
               icon: Icon(Icons.camera_alt),
               onPressed: () async {
+
                 final path = join(
                   // Store the picture in the temp directory.
                   // Find the temp directory using the `path_provider` plugin.
                   (await getTemporaryDirectory()).path,
                   '${DateTime.now()}.png',
                 );
+
                 // Attempt to take a picture and log where it's been saved.
-                await _controller.takePicture(path);
+                var picture = await _controller.takePicture();
+                picture.saveTo(path);
+
                 MaterialPageRoute route = MaterialPageRoute(
                     builder: (context) => PictureScreen(path, place)
                 );

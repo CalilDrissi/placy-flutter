@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import './utils/dbhelper.dart';
 import './models/place.dart';
+import './screens/camera_screen.dart';
 
 class PlaceDialog {
   final txtName = TextEditingController();
@@ -43,21 +44,21 @@ class PlaceDialog {
               ),
             ),
             // (place.image!= '')?Container(child: Image.file(File(place.image))):Container(),
-            // IconButton(
-            //     icon: Icon(Icons.camera_front),
-            //     onPressed: () {
-            //       if (isNew) {
-            //         helper.insertPlace(place).then((data){
-            //           place.id = data;
-            //           MaterialPageRoute route = MaterialPageRoute(builder: (context)=> CameraScreen(place));
-            //           Navigator.push(context, route);
-            //         });
-            //       }
-            //       else {
-            //         MaterialPageRoute route = MaterialPageRoute(builder: (context)=> CameraScreen(place));
-            //         Navigator.push(context, route);
-            //       }
-            //     }),
+            IconButton(
+                icon: Icon(Icons.camera_front),
+                onPressed: () {
+                  if (isNew) {
+                    helper.insertPlace(place).then((data){
+                      place.id = data;
+                      MaterialPageRoute route = MaterialPageRoute(builder: (context)=> CameraScreen(place));
+                      Navigator.push(context, route);
+                    });
+                  }
+                  else {
+                    MaterialPageRoute route = MaterialPageRoute(builder: (context)=> CameraScreen(place));
+                    Navigator.push(context, route);
+                  }
+                }),
             ElevatedButton(
               child: Text('OK'),
               onPressed: () {
