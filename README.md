@@ -1,4 +1,4 @@
-# Placy for ioss & android
+# Placy for ios & android
 
 marking places on the map
 
