@@ -1,4 +1,4 @@
-# map_markers
+# Placy for ioss & android
 
 marking places on the map
 
